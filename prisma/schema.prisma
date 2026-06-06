@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   // bcrypt hashed — never stored in plaintext
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Semester {
+  id           Int       @id @default(autoincrement())
+  nameAr       String    // e.g. "الفصل الدراسي الأول 2024-2025"
+  nameEn       String    // e.g. "First Semester 2024-2025"
+  academicYear String    // e.g. "2024-2025"
+  term         String    // "first" | "second" | "final"
+  isPublished  Boolean   @default(false)
+  publishedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  results      Result[]
+}
+
+model Result {
+  id          Int       @id @default(autoincrement())
+  semesterId  Int
+  semester    Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  seatNumber  String
+  nameAr      String
+  nameEn      String?
+  gradeAr     String    // e.g. "الصف العاشر"
+  gradeEn     String?   // e.g. "Grade 10"
+  dateOfBirth String?   // "YYYY-MM-DD" string — used for identity verification
+  parentPhone String?   // Parent WhatsApp number e.g. "+201012345678"
+  totalScore  Float
+  maxScore    Float
+  percentage  Float
+  status      String    // "pass" | "fail"
+  letterGrade String?   // "A+", "A", "B+", ...
+  subjects    Subject[]
+  createdAt   DateTime  @default(now())
+
+  @@unique([semesterId, seatNumber])
+  @@index([seatNumber])
+  @@index([nameAr])
+}
+
+model Subject {
+  id       Int    @id @default(autoincrement())
+  resultId Int
+  result   Result @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  nameAr   String
+  nameEn   String?
+  score    Float
+  maxScore Float  @default(100)
+  passMark Float  @default(50)
+  status   String // "pass" | "fail"
+  orderIdx Int    @default(0)
+}
