@@ -58,8 +58,8 @@ export async function GET(req: NextRequest) {
       where: {
         semesterId,
         OR: [
-          { nameAr: { contains: name!, mode: 'insensitive' } },
-          { nameEn: { contains: name!, mode: 'insensitive' } },
+          { nameAr: { contains: name! } },
+          { nameEn: { contains: name! } },
         ],
       },
       include,
