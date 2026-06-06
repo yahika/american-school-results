@@ -222,7 +222,7 @@ export default function HomePage() {
                 <label className="form-label">
                   {L.search.dobLabel}
                   <span style={{ color: 'var(--c-text-light)', fontSize: '0.72rem', marginInlineStart: '4px' }}>
-                    ({L.search.dobOptional ?? 'اختياري'})
+                   {(L.search as any).dobOptional ?? 'اختياري'}
                   </span>
                 </label>
                 <input
