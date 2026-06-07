@@ -356,7 +356,7 @@ export default function HomePage() {
 }
 
 // ─── Result Card Component ────────────────────────────────────────────────────
-function ResultCard({ result, lang, L }: { result: Result; lang: Lang; L: typeof t.ar }) {
+function ResultCard({ result, lang, L }: { result: Result; lang: Lang; L: typeof t.ar | typeof t.en }) {
   const isRtl = lang === 'ar'
   const isPass = result.status === 'pass'
   const gradeLabel = result.letterGrade
