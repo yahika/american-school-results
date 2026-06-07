@@ -42,7 +42,7 @@ export default function SchedulePage() {
     empty: 'No exam schedule available yet', home: 'Home', lang: 'عربي',
   }
 
-  const grades = [...new Set(schedule.map(s => lang === 'ar' ? s.gradeAr : s.gradeEn))]
+  const grades = Array.from(new Set(schedule.map(s => lang === 'ar' ? s.gradeAr : s.gradeEn)))
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: isRtl ? 'Tajawal,sans-serif' : 'Poppins,sans-serif' }} dir={isRtl ? 'rtl' : 'ltr'}>
