@@ -14,7 +14,7 @@ interface SemesterRow {
 
 interface ParsedStudent {
   seatNumber: string; nameAr: string; nameEn: string; gradeAr: string; gradeEn: string
-  dateOfBirth: string; parentPhone: string
+  dateOfBirth: string
   subjects: { nameAr: string; nameEn: string; score: number; maxScore: number }[]
   totalScore: number; maxScore: number; percentage: number; status: string
 }
@@ -34,9 +34,9 @@ function parseExcel(file: File): Promise<{ headers: string[]; students: ParsedSt
         if (rows.length < 2) throw new Error('empty')
 
         const headerRow: string[] = rows[0].map((h: unknown) => String(h ?? '').trim())
-        // Fixed cols: 0=seat, 1=nameAr, 2=nameEn, 3=gradeAr, 4=gradeEn, 5=dob, 6=parentPhone
-        // From col 7 onwards: subject score columns
-        const subjectHeaders: string[] = headerRow.slice(7)
+        // Fixed cols: 0=seat, 1=nameAr, 2=nameEn, 3=gradeAr, 4=gradeEn, 5=dob
+        // From col 6 onwards: subject score columns
+        const subjectHeaders: string[] = headerRow.slice(6)
 
         const students: ParsedStudent[] = []
         for (let i = 1; i < rows.length; i++) {
@@ -49,7 +49,6 @@ function parseExcel(file: File): Promise<{ headers: string[]; students: ParsedSt
           const gradeAr     = String(row[3] ?? '').trim()
           const gradeEn     = String(row[4] ?? '').trim()
           const dobRaw      = row[5]
-          const parentPhone = String(row[6] ?? '').trim()
           let dateOfBirth   = ''
           if (dobRaw instanceof Date) {
             dateOfBirth = dobRaw.toISOString().slice(0, 10)
@@ -58,7 +57,7 @@ function parseExcel(file: File): Promise<{ headers: string[]; students: ParsedSt
           }
 
           const subjects = subjectHeaders.map((header, idx) => {
-            const score = Number(row[7 + idx] ?? 0)
+            const score = Number(row[6 + idx] ?? 0)
             return { nameAr: header, nameEn: header, score, maxScore: 100 }
           }).filter(s => !isNaN(s.score))
 
@@ -68,7 +67,7 @@ function parseExcel(file: File): Promise<{ headers: string[]; students: ParsedSt
           const failCount  = subjects.filter(s => s.score < s.maxScore * 0.5).length
           const status     = percentage >= 50 && failCount <= 2 ? 'pass' : 'fail'
 
-          students.push({ seatNumber, nameAr, nameEn, gradeAr, gradeEn, dateOfBirth, parentPhone, subjects, totalScore, maxScore, percentage, status })
+          students.push({ seatNumber, nameAr, nameEn, gradeAr, gradeEn, dateOfBirth, subjects, totalScore, maxScore, percentage, status })
         }
 
         resolve({ headers: subjectHeaders, students })
@@ -203,15 +202,7 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isPublished: !isPublished }),
     })
-    const data = await res.json().catch(() => ({}))
-
-    if (!isPublished && data.whatsapp) {
-      const { sent, failed, skipped } = data.whatsapp
-      const msg = `✅ تم النشر — واتساب: ${sent} أُرسلت${failed ? ` · ${failed} فشلت` : ''}${skipped ? ` · ${skipped} بدون رقم` : ''}`
-      showToast(msg, sent > 0 ? 'success' : 'error')
-    } else {
-      showToast(isPublished ? L.unpublishBtn : L.publishSuccess)
-    }
+    showToast(isPublished ? L.unpublishBtn : L.publishSuccess)
     loadSemesters()
   }
 

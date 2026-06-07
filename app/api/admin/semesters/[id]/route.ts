@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { sendResultNotifications } from '@/lib/whatsapp'
 
 // PATCH /api/admin/semesters/[id] — publish/unpublish or update
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -15,31 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const semester = await prisma.semester.update({ where: { id }, data })
-
-    // ── Send WhatsApp notifications when publishing ───────────────────────────
-    let whatsapp: { sent: number; failed: number; skipped: number } | null = null
-
-    if (body.isPublished === true) {
-      const results = await prisma.result.findMany({
-        where: { semesterId: id },
-        select: {
-          nameAr: true,
-          parentPhone: true,
-          totalScore: true,
-          maxScore: true,
-          percentage: true,
-          status: true,
-          letterGrade: true,
-          semester: { select: { nameAr: true } },
-        },
-      })
-
-      const { sent, failed, skipped } = await sendResultNotifications(results)
-      whatsapp = { sent, failed, skipped }
-      console.log(`[WhatsApp] Semester ${id} published — sent: ${sent}, failed: ${failed}, skipped: ${skipped}`)
-    }
-
-    return NextResponse.json({ success: true, semester, whatsapp })
+    return NextResponse.json({ success: true, semester })
   } catch (err) {
     console.error('[semesters PATCH]', err)
     return NextResponse.json({ error: 'Update failed' }, { status: 500 })

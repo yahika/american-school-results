@@ -38,7 +38,6 @@ model Result {
   gradeAr     String    // e.g. "الصف العاشر"
   gradeEn     String?   // e.g. "Grade 10"
   dateOfBirth String?   // "YYYY-MM-DD" string — used for identity verification
-  parentPhone String?   // Parent WhatsApp number e.g. "+201012345678"
   totalScore  Float
   maxScore    Float
   percentage  Float
